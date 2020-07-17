@@ -15,7 +15,7 @@ const initialState = {
   emailError: null,
   submitAttemted: false,
   submitMessage: "",
-  status: "clean",
+  status: "empty",
 }
 
 function validate(name, value) {
@@ -51,7 +51,7 @@ function validate(name, value) {
 function formReducer(state, action) {
   let error
   switch (state.status) {
-    case "dirty":
+    case "written":
       // eslint-disable-next-line default-case
       switch (action.type) {
         case actions.formSubmitted:
@@ -66,14 +66,14 @@ function formReducer(state, action) {
             nameError,
             emailError,
             submitAttemted: true,
-            status: formValid ? "completed" : "dirty",
+            status: formValid ? "completed" : "written",
             submitMessage: formValid
               ? "Form Submitted Successfully"
               : "Form has Errors",
           }
       }
     // eslint-disable-next-line no-fallthrough
-    case "clean":
+    case "empty":
       switch (action.type) {
         case actions.nameChanged:
           error = validate("name", action.payload)
@@ -82,7 +82,7 @@ function formReducer(state, action) {
             name: action.payload,
             nameError: error,
             submitMessage: "",
-            status: "dirty",
+            status: "written",
           }
         case actions.emailChanged:
           error = validate("name", action.payload)
@@ -91,7 +91,7 @@ function formReducer(state, action) {
             email: action.payload,
             emailError: error,
             submitMessage: "",
-            status: "dirty",
+            status: "written",
           }
         case actions.formSubmitted:
           return {
@@ -102,6 +102,10 @@ function formReducer(state, action) {
           return state
       }
     case "completed":
+      return {
+        ...state,
+        submitMessage: "",
+      }
     default:
       return state
   }
@@ -133,7 +137,7 @@ const Form = () => {
     e.preventDefault()
     dispatch({ type: actions.formSubmitted })
   }
-  
+
   return (
     <div className="App">
       <form onSubmit={handleSubmit}>
@@ -159,7 +163,8 @@ const Form = () => {
           />
           <span>{state.submitAttemted && state.emailError}</span>
         </label>
-        <p>{state.submitAttemted && "Form Submitted Successfully!"}</p>
+        <p>{state.submitMessage && state.submitMessage}</p>
+        {/* <p>{state.submitAttemted && "Form Submitted Successfully!"}</p> */}
         <button type="submit">Submit</button>
         <pre>{JSON.stringify(state, null, 10)}</pre>
       </form>
